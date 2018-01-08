@@ -3,7 +3,7 @@ const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 
 const { validatePassword } = require('../users/model');
-const { JWT_SECRET } = require('../config');
+const { JWT_SECRET, DATABASE } = require('../config');
 
 const { dbGet } = require('../db-knex');
 
