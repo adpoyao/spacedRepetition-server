@@ -3,9 +3,12 @@ const cors = require('cors');
 const morgan = require('morgan');
 const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
 const { PORT, CLIENT_ORIGIN } = require('./config');
+require('dotenv').config();
 
 const { dbConnect } = require('./db-mongoose');
 const { dbConnect } = require('./db-knex');
+
+const usersRouter = require('./users/router');
 
 const app = express();
 
@@ -20,6 +23,8 @@ app.use(cors({ origin: CLIENT_ORIGIN }));
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 app.use('/api/auth', authRouter);
+
+app.use('/users', usersRouter);
 
 function runServer(port = PORT) {
   const server = app.listen(port, () => {
