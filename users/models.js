@@ -6,6 +6,12 @@ const UserSchema = mongoose.Schema({
 	password: {type: String, required: true}
 });
 
+UserSchema.methods.serialize = function() {
+	return {
+		username: this.username || ''
+	};
+};
+
 UserSchema.methods.validatePassword = function(password) {
 	return bcrypt.compare(password, this.password);
 };

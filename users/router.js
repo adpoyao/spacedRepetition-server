@@ -37,7 +37,7 @@ router.post('/', jsonParser, (req, res) => {
 	const tooLargeField = Object.keys(sizedFields).find(
 		field =>
 			'max' in sizedFields[field] &&
-                req.body[field].trim().length < sizedFields[field].max
+                req.body[field].trim().length > sizedFields[field].max
 	);
     
 	if (tooSmallField || tooLargeField) {
@@ -83,4 +83,4 @@ router.post('/', jsonParser, (req, res) => {
 		});
 });
 
-module.exports = {router};
+module.exports = router;

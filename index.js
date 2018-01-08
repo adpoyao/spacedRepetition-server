@@ -1,12 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+require('dotenv').config();
 
 const {PORT, CLIENT_ORIGIN} = require('./config');
 const {dbConnect} = require('./db-mongoose');
 // const {dbConnect} = require('./db-knex');
 
-const users = require('./users/router');
+const usersRouter = require('./users/router');
 
 const app = express();
 
@@ -22,7 +23,7 @@ app.use(
 	})
 );
 
-app.use('/users', users);
+app.use('/users', usersRouter);
 
 function runServer(port = PORT) {
 	const server = app
