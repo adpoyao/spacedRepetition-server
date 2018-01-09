@@ -62,6 +62,7 @@ router.post('/', (req, res) => {
 		});
 });
 
+//Modify existing questions
 router.put('/:id', (req, res) => {
 	if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
 		const message = (
@@ -70,4 +71,18 @@ router.put('/:id', (req, res) => {
 		console.error(message);
 		return res.status(400).json({message: message});
 	}
+    
+	const toUpdate = {};
+	const updateableFields = ['vocab', 'hiragana', 'katakana', 'romaji', 'example', 'correct'];
+
+	updateableFields.forEach(field => {
+		if (field in req.body) {
+			toUpdate[field] = req.body[field];
+		}
+	});
+
+	Question
+		.findByIdAndUpdate(req.params.id, {$set: toUpdate})
+		.then(question => res.status(204).end())
+		.catch(err => res.status(500).json({message: 'Internal server error'}));
 });
