@@ -1,7 +1,8 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const router = express.Router();
-
-const {Question} = require('./models');
+const jsonParser = bodyParser.json()
+const { Question } = require('./models');
 
 //Get all
 router.get('/', (req, res) => {
@@ -34,7 +35,7 @@ router.get('/:id', (req, res) => {
 });
 
 //Create a new question
-router.post('/', (req, res) => {
+router.post('/', jsonParser, (req, res) => {
 	const requiredFields = ['vocab', 'hiragana', 'katakana', 'romaji', 'example', 'correct'];
 	for (let i = 0; i < requiredFields.length; i++) {
 		const field = requiredFields[i];
@@ -44,7 +45,7 @@ router.post('/', (req, res) => {
 			return res.status(400).send(message);
 		}
 	}
-    
+
 	Question
 		.create({
 			vocab: req.body.vocab,
@@ -54,8 +55,7 @@ router.post('/', (req, res) => {
 			example: req.body.example,
 			correct: req.body.correct
 		})
-		.then(
-			question => question.status(201).json(question.serialize()))
+		.then(question => res.status(201).json(question.serialize()))
 		.catch(err => {
 			console.error(err);
 			res.status(500).json({message: 'Internal server error'});
@@ -93,3 +93,5 @@ router.delete('/:id', (req, res) => {
 		.then(() => res.status(204).end())
 		.catch(err => res.status(500).json({message: 'Internal server error'}));
 });
+
+module.exports = router;
