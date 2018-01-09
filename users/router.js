@@ -4,6 +4,10 @@ const router = express.Router();
 const jsonParser = bodyParser.json();
 
 const { User } = require('./models');
+const { Question } = require('../questions/models');
+const LinkedList = require('./linked-list');
+//import the Questions from the questions model and router
+
 
 router.post('/', jsonParser, (req, res) => {
 	const requiredFields = ['username', 'password'];
@@ -47,14 +51,18 @@ router.post('/', jsonParser, (req, res) => {
 		return User.hashPassword(password);
 	}).then(hash => {
 		return User.create({username, password: hash});
-	}).then(user => {
-		return res.status(201).json(user.serialize());
-	}).catch(err => {
-		if (err.reason == 'Validation Error') {
-			return res.status(err.code).json(err);
-		}
-		res.status(500).json({code: 500, message: 'Internal server error'});
-	});
+	}).then(user => Question.find().then(questions => ({user, questions})))
+		.then(({user, questions}) => {
+			let linked = new LinkedList();
+			questions.map((each, index) => linked.insert(index, each));
+			user.questions = linked;
+			return res.status(201).json(user.serialize());
+		}).catch(err => {
+			if (err.reason == 'Validation Error') {
+				return res.status(err.code).json(err);
+			}
+			res.status(500).json({code: 500, message: 'Internal server error'});
+		});
 });
 
 module.exports = router;
