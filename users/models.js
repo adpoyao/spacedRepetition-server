@@ -6,16 +6,16 @@ const UserSchema = mongoose.Schema({
 	password: { type: String, required: true },
 	firstName: { type: String },
 	lastName: { type: String },
-	questions: { type: mongoose.Schema.Types.Mixed }
+	questions: { type: mongoose.Schema.Types.Mixed },
+	headIndex: { type: Number, required: true, default: 0}
 });
 
 UserSchema.methods.serialize = function () {
 	return {
 		username: this.username || '',
-		password: this.password || '',
 		firstName: this.firstName || '',
 		lastName: this.lastName || '',
-		questions: this.questions || '',
+		headIndex: this.headIndex || ''
 	};
 };
 

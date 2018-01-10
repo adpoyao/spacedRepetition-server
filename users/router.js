@@ -56,7 +56,8 @@ router.post('/', jsonParser, (req, res) => {
 			let linked = new LinkedList();
 			questions.map((each, index) => linked.insert(index, each));
 			user.questions = linked;
-			return res.status(201).json(user.serialize());
+			return user.save();
+		}).then(user => {return res.status(201).json(user.serialize());
 		}).catch(err => {
 			if (err.reason == 'Validation Error') {
 				return res.status(err.code).json(err);
