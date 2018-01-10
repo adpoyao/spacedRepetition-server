@@ -6,7 +6,8 @@ const QuestionSchema = mongoose.Schema({
 	katakana: {type: String, required: true},
 	romaji: {type: String, required: true},
 	example: {type: String, required: true},
-	correct: {type: String, required: true}
+	correct: {type: String, required: true},
+	strength: {type: Number, required: true, default: 1}
 });
 
 QuestionSchema.methods.serialize = function () {
@@ -17,6 +18,7 @@ QuestionSchema.methods.serialize = function () {
 		romaji: this.romaji || '',
 		example: this.example || '',
 		correct: this.correct || '',
+		strength: this.strength || ''
 	};
 };
 

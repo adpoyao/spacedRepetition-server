@@ -3,6 +3,7 @@ const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
+const { User } = require('../users/models');
 
 const config = require('../config');
 const router = express.Router();
@@ -23,7 +24,8 @@ router.use(bodyParser.json());
 // The user provides a username and password to login
 router.post('/login', localAuth, (req, res) => {
   const authToken = createAuthToken(req.user);
-  res.json({ authToken });
+  User.findOne({ username: req.user.username })
+  .then(user => { return res.json({ question: user.questions.head.value, authToken });});
 });
 
 // The user exchanges a valid JWT for a new one with a later expiration
