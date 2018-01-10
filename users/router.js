@@ -2,9 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 const jsonParser = bodyParser.json();
+const { retrieve, remove, insert, display, size } = require('../linkedList/linkedList');
 
-const {User} = require('./models');
-const {Question} = require('../questions/models');
+const { User } = require('./models');
+const { Question } = require('../questions/models');
 const LinkedList = require('./linked-list');
 //import the Questions from the questions model and router
 
@@ -13,17 +14,17 @@ router.post('/', jsonParser, (req, res) => {
   const missingField = requiredFields.find(field => !(field in req.body));
 
   if (missingField) {
-    return res.status(422).json({code: 422, reason: 'Validation Error', message: 'Missing field', location: missingField});
+    return res.status(422).json({ code: 422, reason: 'Validation Error', message: 'Missing field', location: missingField });
   }
 
   const sizedFields = {
     username: {
-      min: 1
+      min: 1,
     },
     password: {
       min: 6,
-      max: 72
-    }
+      max: 72,
+    },
   };
 
   const tooSmallField = Object.keys(sizedFields).find(field => 'min' in sizedFields[field] && req.body[field].trim().length < sizedFields[field].min);
@@ -37,20 +38,21 @@ router.post('/', jsonParser, (req, res) => {
       message: tooSmallField
         ? `Must be at least ${sizedFields[tooSmallField].min} chars long`
         : `Must be at most ${sizedFields[tooLargeField].max} chars long`,
-      location: tooSmallField || tooLargeField
+      location: tooSmallField || tooLargeField,
     });
   }
 
-  let {username, password} = req.body;
+  let { username, password } = req.body;
 
-  return User.find({username}).count().then(count => {
+  return User.find({ username }).count().then(count => {
     if (count > 0) {
-      return Promise.reject({code: 422, reason: 'Validation Error', message: 'Username already taken', location: 'username'});
+      return Promise.reject({ code: 422, reason: 'Validation Error', message: 'Username already taken', location: 'username' });
     }
+
     return User.hashPassword(password);
   }).then(hash => {
-    return User.create({username, password: hash});
-  }).then(user => Question.find().then(questions => ({user, questions}))).then(({user, questions}) => {
+    return User.create({ username, password: hash });
+  }).then(user => Question.find().then(questions => ({ user, questions }))).then(({ user, questions }) => {
     let linked = new LinkedList();
     questions.map((each, index) => linked.insert(index, each));
     user.questions = linked;
@@ -61,7 +63,31 @@ router.post('/', jsonParser, (req, res) => {
     if (err.reason == 'Validation Error') {
       return res.status(err.code).json(err);
     }
-    res.status(500).json({code: 500, message: 'Internal server error'});
+
+    res.status(500).json({ code: 500, message: 'Internal server error' });
+  });
+});
+
+router.put('/:id', jsonParser, (req, res) => {
+  User.findOne({ username: req.body.username })
+  .then(user => {
+    let questions = user.questions;
+    let answer = retrieve(questions, 0);
+    remove(questions, 0);
+    insert(questions, questions.length-1, answer);
+    user.questions = questions;
+    return user.save()
+    .then((user) => {
+      console.log(user.questions);
+      return user;
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  })
+  .then((user) => {
+    console.log(user.questions.head.value);
+    return res.sendStatus(201);
   });
 });
 

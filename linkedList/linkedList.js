@@ -17,6 +17,7 @@ const retrieve = (linkedList, index) => {
   return node.value;
 };
 
+//Remove from list
 const remove = (linkedList, index) => {
   if (index < 0 || index >= linkedList.length) {
     throw new Error('Index Error');
@@ -205,4 +206,4 @@ const test = {
 let answeredQuestion = retrieve(test, 0);
 remove(test, 0);
 insert(test, test.length, answeredQuestion);
-display(test);
+// display(test);

@@ -2,21 +2,21 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 
 const UserSchema = mongoose.Schema({
-	username: { type: String, required: true, unique: true },
-	password: { type: String, required: true },
-	firstName: { type: String },
-	lastName: { type: String },
-	questions: { type: mongoose.Schema.Types.Mixed },
-	headIndex: { type: Number, required: true, default: 0}
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  firstName: { type: String },
+  lastName: { type: String },
+  questions: { type: mongoose.Schema.Types.Mixed },
+  headIndex: { type: Number, required: true, default: 0 },
 });
 
 UserSchema.methods.serialize = function () {
-	return {
-		username: this.username || '',
-		firstName: this.firstName || '',
-		lastName: this.lastName || '',
-		headIndex: this.headIndex || ''
-	};
+  return {
+    username: this.username || '',
+    firstName: this.firstName || '',
+    lastName: this.lastName || '',
+    headIndex: this.headIndex || '',
+  };
 };
 
 UserSchema.methods.validatePassword = function (password) {
