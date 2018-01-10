@@ -74,20 +74,12 @@ router.put('/:id', jsonParser, (req, res) => {
     let questions = user.questions;
     let answer = retrieve(questions, 0);
     remove(questions, 0);
-    insert(questions, questions.length-1, answer);
+    insert(questions, questions.length - 1, answer);
     user.questions = questions;
-    return user.save()
-    .then((user) => {
-      console.log(user.questions);
-      return user;
-    });
+    return User.findByIdAndUpdate(user._id, { questions }, { new: true });
   })
-  .catch((err) => {
-    console.log(err);
-  })
-  .then((user) => {
-    console.log(user.questions.head.value);
-    return res.sendStatus(201);
+  .then(user => {
+    return res.sendStatus(204);
   });
 });
 
