@@ -7,9 +7,7 @@ const QuestionSchema = mongoose.Schema({
 	romaji: {type: String, required: true},
 	example: {type: String, required: true},
 	correct: {type: String, required: true},
-	strength: {type: Number, required: true, default: 1},
-	numRight: {type: Number, required: true, default: 0},
-	total: {type: Number, required: true, default: 0}
+	strength: {type: Number, required: true, default: 1}
 });
 
 QuestionSchema.methods.serialize = function () {
@@ -20,9 +18,7 @@ QuestionSchema.methods.serialize = function () {
 		romaji: this.romaji || '',
 		example: this.example || '',
 		correct: this.correct || '',
-		strength: this.strength || '',
-		numRight: this.numRight || '',
-		total: this.total || ''
+		strength: this.strength || ''
 	};
 };
 
