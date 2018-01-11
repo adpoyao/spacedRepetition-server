@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 const jsonParser = bodyParser.json();
-const { retrieve, remove, insert, display, size } = require('../linkedList/linkedList');
+const { retrieve, remove, insert } = require('../linkedList/linkedList');
 const { User } = require('./models');
 const { Question } = require('../questions/models');
 const LinkedList = require('./linked-list');
@@ -91,7 +91,7 @@ router.post('/answer', jsonParser, (req, res) => {
 			return User.findByIdAndUpdate(user._id, {questions}, {new: true});
 		})
 		.then(user => {
-			return res.sendStatus(204);
+			return res.status(201).json(user.questions.head.value);
 		});
 });
 
