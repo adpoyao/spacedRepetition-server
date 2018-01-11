@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 const jsonParser = bodyParser.json();
-const { retrieve, remove, insert, display, size } = require('../linkedList/linkedList');
+const { retrieve, remove, insert } = require('../linkedList/linkedList');
 const { User } = require('./models');
 const { Question } = require('../questions/models');
 const LinkedList = require('./linked-list');
@@ -76,25 +76,31 @@ router.post('/answer', jsonParser, (req, res) => {
       let current = retrieve(questions, 0);
       remove(questions, 0);
 
-      if (response) {
-        current.strength *= 2;
-        if (current.strength <= questions.length) {
-          insert(questions, current.strength, current);
-        }
-        else {
-          insert(questions, questions.length, current);
-        }
-      } else {
-        current.strength = 1;
-        insert(questions, current.strength + 1, current);
-      }
+			current.total += 1;
 
-      user.questions = questions;
-      return User.findByIdAndUpdate(user._id, {questions}, {new: true});
-    })
-    .then(user => {
-      console.log(user.questions.head.value)
-      res.status(201).json(user.questions.head.value)
+			if (response) {
+				current.right += 1;
+			}
+
+			if (response) {
+				current.strength *= 2;
+				if (current.strength <= questions.length) {
+					insert(questions, current.strength, current);
+				}
+				else {
+					insert(questions, questions.length, current);
+				}
+			} else {
+				current.strength = 1;
+				insert(questions, current.strength + 1, current);
+			}
+
+			user.questions = questions;
+			return User.findByIdAndUpdate(user._id, {questions}, {new: true});
+		})
+		.then(user => {
+			return res.status(201).json(user.questions.head.value);
+		})
     .catch(err => res.status(500).json({message: 'Internal server error'}));
     });
 });
