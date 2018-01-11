@@ -53,10 +53,7 @@ router.post('/', jsonParser, (req, res) => {
 	}).then(user => Question.find().then(questions => ({user, questions})))
 		.then(({user, questions}) => {
 			let linked = new LinkedList();
-			questions.map((each, index) => {
-				each.numRight = 0;
-				each.total = 0;
-				linked.insert(index, each);});
+			questions.map((each, index) => linked.insert(index, each));
 			user.questions = linked;
 			return user.save();
 		}).then(user => {return res.status(201).json(user.serialize());
@@ -78,8 +75,9 @@ router.post('/answer', jsonParser, (req, res) => {
 			remove(questions, 0);
 
 			current.total += 1;
+
 			if (response) {
-				current.numRight += 1;
+				current.right += 1;
 			}
 
 			if (response) {
