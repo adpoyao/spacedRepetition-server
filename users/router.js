@@ -101,8 +101,7 @@ router.post('/answer', jsonParser, (req, res) => {
 		.then(user => {
 			return res.status(201).json(user.questions.head.value);
 		})
-    .catch(err => res.status(500).json({message: 'Internal server error'}));
-    });
-});
+    		.catch(err => res.status(500).json({message: 'Internal server error'}));
+   });
 
 module.exports = router;
