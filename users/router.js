@@ -1,9 +1,10 @@
+'use strict';
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const { retrieve, remove, insert, display, size } = require('../linkedList/linkedList');
-
 const { User } = require('./models');
 const { Question } = require('../questions/models');
 const LinkedList = require('./linked-list');
@@ -51,36 +52,52 @@ router.post('/', jsonParser, (req, res) => {
 
     return User.hashPassword(password);
   }).then(hash => {
-    return User.create({ username, password: hash });
-  }).then(user => Question.find().then(questions => ({ user, questions }))).then(({ user, questions }) => {
-    let linked = new LinkedList();
-    questions.map((each, index) => linked.insert(index, each));
-    user.questions = linked;
-    return user.save();
-  }).then(user => {
-    return res.status(201).json(user.serialize());
-  }).catch(err => {
-    if (err.reason == 'Validation Error') {
-      return res.status(err.code).json(err);
-    }
-
-    res.status(500).json({ code: 500, message: 'Internal server error' });
-  });
+    return User.create({username, password: hash});
+  }).then(user => Question.find().then(questions => ({user, questions})))
+    .then(({user, questions}) => {
+      let linked = new LinkedList();
+      questions.map((each, index) => linked.insert(index, each));
+      user.questions = linked;
+      return user.save();
+    }).then(user => {return res.status(201).json(user.serialize());
+    }).catch(err => {
+      if (err.reason == 'Validation Error') {
+        return res.status(err.code).json(err);
+      }
+      res.status(500).json({code: 500, message: 'Internal server error'});
+    });
 });
 
-router.put('/:id', jsonParser, (req, res) => {
-  User.findOne({ username: req.body.username })
-  .then(user => {
-    let questions = user.questions;
-    let answer = retrieve(questions, 0);
-    remove(questions, 0);
-    insert(questions, questions.length - 1, answer);
-    user.questions = questions;
-    return User.findByIdAndUpdate(user._id, { questions }, { new: true });
-  })
-  .then(user => {
-    return res.sendStatus(204);
-  });
+router.post('/answer', jsonParser, (req, res) => {
+  let response = req.body.boolean;
+
+  User.findOne({username: req.body.username})
+    .then(user => {
+      let questions = user.questions;
+      let current = retrieve(questions, 0);
+      remove(questions, 0);
+
+      if (response) {
+        current.strength *= 2;
+        if (current.strength <= questions.length) {
+          insert(questions, current.strength, current);
+        }
+        else {
+          insert(questions, questions.length, current);
+        }
+      } else {
+        current.strength = 1;
+        insert(questions, current.strength + 1, current);
+      }
+
+      user.questions = questions;
+      return User.findByIdAndUpdate(user._id, {questions}, {new: true});
+    })
+    .then(user => {
+      console.log(user.questions.head.value)
+      res.status(201).json(user.questions.head.value)
+    .catch(err => res.status(500).json({message: 'Internal server error'}));
+    });
 });
 
 module.exports = router;
