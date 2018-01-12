@@ -10,6 +10,11 @@ const { Question } = require('../questions/models');
 const LinkedList = require('../linked-list/linked-list-class');
 //import the Questions from the questions model and router
 
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
+
+const jwtAuth = passport.authenticate('jwt', { session: false });
+
 router.post('/', jsonParser, (req, res) => {
 	const requiredFields = ['username', 'password'];
 	const missingField = requiredFields.find(field => !(field in req.body));
@@ -67,8 +72,8 @@ router.post('/', jsonParser, (req, res) => {
 		});
 });
 
-router.post('/answer', jsonParser, (req, res) => {
-	let response = req.body.boolean;
+router.post('/answer', jsonParser, jwtAuth, (req, res) => {
+  let response = req.body.boolean;
 
 	User.findOne({username: req.body.username})
 		.then(user => {
