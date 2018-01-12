@@ -2,7 +2,6 @@
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-
 const { TEST_DATABASE_URL } = require('../config');
 const { dbConnect, dbDisconnect } = require('../db-mongoose');
 const { User } = require('../users/models');
@@ -18,7 +17,7 @@ process.stdout.write('\x1Bc\n');
 
 const expect = chai.expect;
 chai.use(chaiHttp);
-
+/*
 describe('/api/user', function () {
   const username = 'exampleUsername';
   const password = 'examplePass';
@@ -293,3 +292,4 @@ describe('/api/user', function () {
     });
   });
 });
+*/
