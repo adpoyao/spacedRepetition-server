@@ -4,11 +4,16 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
 const jsonParser = bodyParser.json();
-const { retrieve, remove, insert, display, size } = require('../linkedList/linkedList');
+const { retrieve, remove, insert } = require('../linked-list/linked-list-functions');
 const { User } = require('./models');
 const { Question } = require('../questions/models');
-const LinkedList = require('./linked-list');
+const LinkedList = require('../linked-list/linked-list-class');
 //import the Questions from the questions model and router
+
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
+
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
 router.post('/', jsonParser, (req, res) => {
   const requiredFields = ['username', 'password'];
@@ -68,36 +73,41 @@ router.post('/', jsonParser, (req, res) => {
     });
 });
 
-router.post('/answer', jsonParser, (req, res) => {
+router.post('/answer', jsonParser, jwtAuth, (req, res) => {
   let response = req.body.boolean;
 
-  User.findOne({username: req.body.username})
-    .then(user => {
-      let questions = user.questions;
-      let current = retrieve(questions, 0);
-      remove(questions, 0);
+	User.findOne({username: req.body.username})
+		.then(user => {
+			let questions = user.questions;
+			let current = retrieve(questions, 0);
+			remove(questions, 0);
 
-      if (response) {
-        current.strength *= 2;
-        if (current.strength <= questions.length) {
-          insert(questions, current.strength, current);
-        }
-        else {
-          insert(questions, questions.length, current);
-        }
-      } else {
-        current.strength = 1;
-        insert(questions, current.strength + 1, current);
-      }
+			current.total += 1;
 
-      user.questions = questions;
-      return User.findByIdAndUpdate(user._id, {questions}, {new: true});
-    })
-    .then(user => {
-      console.log(user.questions.head.value)
-      res.status(201).json(user.questions.head.value)
-    .catch(err => res.status(500).json({message: 'Internal server error'}));
-    });
+			if (response) {
+				current.right += 1;
+			}
+
+			if (response) {
+				current.strength *= 2;
+				if (current.strength <= questions.length) {
+					insert(questions, current.strength, current);
+				}
+				else {
+					insert(questions, questions.length, current);
+				}
+			} else {
+				current.strength = 1;
+				insert(questions, current.strength + 1, current);
+			}
+
+			user.questions = questions;
+			return User.findByIdAndUpdate(user._id, {questions}, {new: true});
+		})
+		.then(user => {
+			return res.status(201).json(user.questions.head.value);
+		})
+    		.catch(err => res.status(500).json({message: 'Internal server error'}));
 });
 
 module.exports = router;
